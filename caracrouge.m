@@ -8,14 +8,14 @@ S = Ihsv(:,:,2); % Saturation
 V = Ihsv(:,:,3); % Valeur (Brightness)
 
 % Définir les seuils pour le vert (ajuster si besoin)
-H_min = 0.9; % Approximativement jaune (~30° en HSV)
-H_max = 1; 
-S_min = 0.2;  % Pour éviter les zones blanches
-S_max = 0.5;  % Pour éviter les zones blanches
-V_min = 0.3;  % Exclure les parties sombres
+H_min1 = 0.0; H_max1 = 0.06; % Rouge vif (0° à 21.6°)
+H_min2 = 0.94; H_max2 = 1.0; % Rouge foncé (338.4° à 360°)
+S_min = 0.5; % Couleur bien saturée
+V_min = 0.3; % Inclure les rouges moyens et vifs
+
 
 % Créer un masque binaire pour le jaune
-mask = (H >= H_min) & (H <= H_max) & (S >= S_min) & (S <= S_max) & (V >= V_min);
+mask = ((H >= H_min1) & (H <= H_max1) | (H >= H_min2) & (H <= H_max2)) & (S >= S_min) & (V >= V_min);
 
 % Appliquer une ouverture morphologique pour réduire le bruit
 se = strel('disk', 3);

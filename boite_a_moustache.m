@@ -43,13 +43,12 @@ end
 figure;
 colors = {'Blanc', 'Rouge', 'Vert', 'Jaune', 'Marron', 'Rose'};
 
-for c = 1:5
+for c = 1:6
     subplot(3,2,c); hold on;
     x = 1:num_types;
 
-    % Créer un cell array pour stocker les données à écrire dans Excel
+    % Réinitialiser les données Excel pour chaque couleur
     excelData = {};
-    
     rowIndex = 1; % Indice de ligne pour l'Excel
     
     for i = 1:size(area_data, 1)
@@ -68,12 +67,6 @@ for c = 1:5
         end
     end
     
-    % Convertir en table pour un meilleur affichage dans Excel
-    excelTable = cell2table(excelData, 'VariableNames', {'Row', 'Column', 'Index', 'Value'});
-    
-    % Écrire dans un fichier Excel
-    writetable(excelTable, 'output.xlsx');
-    
     % Points individuels
     for i = 1:num_types
         scatter(ones(size(area_data{i, c})) * i, area_data{i, c}, 'b', 'filled', 'MarkerFaceAlpha', 0.3);
@@ -83,7 +76,6 @@ for c = 1:5
     scatter(x, medians(:, c), 100, 'r', 'filled');
     
     % Ajouter les barres d'erreur pour min-Q1-Q3-max
-
     errorbar(x, medians(:, c), medians(:, c) - q1(:, c), q3(:, c) - medians(:, c), 'k', 'LineWidth', 2);
     
     % Ajouter les min/max comme lignes verticales
@@ -98,3 +90,10 @@ for c = 1:5
     title(['Distribution du ', colors{c}, ' par Type de Pizza']);
     hold off;
 end
+
+% Convertir en table avec des noms de colonnes uniques
+excelTable = cell2table(excelData, 'VariableNames', {'RowIdx', 'ColumnIdx', 'ElementIdx', 'Value'});
+
+% Générer un fichier unique par couleur
+filename = sprintf('output_color.xlsx');
+writetable(excelTable, filename);

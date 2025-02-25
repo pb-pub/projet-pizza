@@ -1,23 +1,23 @@
 clc; clear; close all;
 
-%% Boite à moustache : Blanc, Rouge, Vert et Jaune
+%% Boite à moustache : Blanc, Rouge, Vert, Jaune et Marron
 
 % Définition des dossiers contenant les images
 folders = {'pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege'};
 num_types = numel(folders);
 
-area_data = cell(num_types, 4);
-medians = zeros(num_types, 4);
-q1 = zeros(num_types, 4);
-q3 = zeros(num_types, 4);
-mins = zeros(num_types, 4);
-maxs = zeros(num_types, 4);
+area_data = cell(num_types, 5);
+medians = zeros(num_types, 5);
+q1 = zeros(num_types, 5);
+q3 = zeros(num_types, 5);
+mins = zeros(num_types, 5);
+maxs = zeros(num_types, 5);
 
 % Parcours des dossiers
 for i = 1:num_types
     files = dir(fullfile('masked_dataset\', folders{i}, '*.jpg')); 
     num_files = numel(files);
-    Areas = zeros(num_files, 4);
+    Areas = zeros(num_files, 5);
     
     for j = 1:num_files
         img = imread(fullfile('masked_dataset\', folders{i}, files(j).name));
@@ -25,6 +25,7 @@ for i = 1:num_types
         Areas(j, 2) = caracrouge(img) / (size(img,1) * size(img,2));
         Areas(j, 3) = caracvert(img) / (size(img,1) * size(img,2));
         Areas(j, 4) = caracjaune(img) / (size(img,1) * size(img,2));
+        Areas(j, 5) = caracmarron(img) / (size(img,1) * size(img,2));
     end
     
     % Stocker les statistiques
@@ -38,10 +39,10 @@ end
 
 % Affichage des boîtes à moustaches
 figure;
-colors = {'Blanc', 'Rouge', 'Vert', 'Jaune'};
+colors = {'Blanc', 'Rouge', 'Vert', 'Jaune', 'Marron'};
 
-for c = 1:4
-    subplot(2,2,c); hold on;
+for c = 1:5
+    subplot(3,2,c); hold on;
     x = 1:num_types;
     
     % Points individuels

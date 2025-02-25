@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-%% Boite à moustache : Blanc, Rouge, Vert, Jaune et Marron
+%% Boite à moustache : Blanc, Rouge, Vert, Jaune, Marron et Rose
 
 % Définition des dossiers contenant les images
 folders = {'pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege'};

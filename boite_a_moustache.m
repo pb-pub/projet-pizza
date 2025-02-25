@@ -21,12 +21,7 @@ for i = 1:num_types
     
     for j = 1:num_files
         img = imread(fullfile('masked_dataset\', folders{i}, files(j).name));
-        Areas(j, 1) = caracblanc(img) / (size(img,1) * size(img,2));
-        Areas(j, 2) = caracrouge(img) / (size(img,1) * size(img,2));
-        Areas(j, 3) = caracvert(img) / (size(img,1) * size(img,2));
-        Areas(j, 4) = caracjaune(img) / (size(img,1) * size(img,2));
-        Areas(j, 5) = caracmarron(img) / (size(img,1) * size(img,2));
-        Areas(j, 6) = caracrose(img) / (size(img,1) * size(img,2));
+        Areas(j, :) = (caraccouleur(img))';
     end
     
     % Stocker les statistiques
@@ -100,58 +95,55 @@ writetable(excelTable, filename);
 
 %% Classification sur la couleur & Matrice de confusion correspondante
 
-folders = {'pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege'};
-num_types = numel(folders);
+while (accuracy<0.7)
 
-% Initialisation des caractéristiques et des labels
-features = [];
-labels = [];
-
-% Parcours des dossiers
-for i = 1:num_types
-    files = dir(fullfile('masked_dataset\', folders{i}, '*.jpg'));
-    num_files = numel(files);
-
-    for j = 1:num_files
-        img = imread(fullfile('masked_dataset\', folders{i}, files(j).name));
-        img_size = size(img,1) * size(img,2);
-
-        % Extraire les caractéristiques (proportions de couleur)
-        feat_vec = [
-            caracblanc(img) / img_size;
-            caracrouge(img) / img_size;
-            caracvert(img) / img_size;
-            caracjaune(img) / img_size;
-            caracmarron(img) / img_size;
-            caracrose(img) / img_size;
-        ];
-
-        % Stocker les caractéristiques et les labels
-        features = [features; feat_vec'];
-        labels = [labels; i]; % Label numérique correspondant au type de pizza
+    folders = {'pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege'};
+    num_types = numel(folders);
+    
+    % Initialisation des caractéristiques et des labels
+    features = [];
+    labels = [];
+    
+    % Parcours des dossiers
+    for i = 1:num_types
+        files = dir(fullfile('masked_dataset\', folders{i}, '*.jpg'));
+        num_files = numel(files);
+    
+        for j = 1:num_files
+            img = imread(fullfile('masked_dataset\', folders{i}, files(j).name));
+            img_size = size(img,1) * size(img,2);
+    
+            % Extraire les caractéristiques (proportions de couleur)
+            feat_vec = caraccouleur(img);
+    
+            % Stocker les caractéristiques et les labels
+            features = [features; feat_vec'];
+            labels = [labels; i]; % Label numérique correspondant au type de pizza
+        end
     end
+    
+    cv = cvpartition(size(features, 1), 'HoldOut', 0.2);
+    train_idx = training(cv);
+    test_idx = test(cv);
+    
+    X_train = features(train_idx, :);
+    y_train = labels(train_idx);
+    X_test = features(test_idx, :);
+    y_test = labels(test_idx);
+    
+    % Création du modèle k-NN
+    knn_model = fitcknn(X_train, y_train, 'NumNeighbors', 6);
+    
+    % Prédiction sur l'ensemble de test
+    y_pred = predict(knn_model, X_test);
+    
+    % Matrice de confusion et précision
+    confusion_matrix = confusionmat(y_test, y_pred);
+    accuracy = sum(diag(confusion_matrix)) / sum(confusion_matrix(:));
+    
+    % Affichage des résultats
+    disp('Matrice de confusion :');
+    disp(confusion_matrix);
+    fprintf('Précision globale : %.2f%%\n', accuracy * 100);
+    
 end
-
-cv = cvpartition(size(features, 1), 'HoldOut', 0.2);
-train_idx = training(cv);
-test_idx = test(cv);
-
-X_train = features(train_idx, :);
-y_train = labels(train_idx);
-X_test = features(test_idx, :);
-y_test = labels(test_idx);
-
-% Création du modèle k-NN
-knn_model = fitcknn(X_train, y_train, 'NumNeighbors', 6);
-
-% Prédiction sur l'ensemble de test
-y_pred = predict(knn_model, X_test);
-
-% Matrice de confusion et précision
-confusion_matrix = confusionmat(y_test, y_pred);
-accuracy = sum(diag(confusion_matrix)) / sum(confusion_matrix(:));
-
-% Affichage des résultats
-disp('Matrice de confusion :');
-disp(confusion_matrix);
-fprintf('Précision globale : %.2f%%\n', accuracy * 100);

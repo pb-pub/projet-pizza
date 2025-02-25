@@ -8,6 +8,8 @@ bin/**
 build/**
 obj/**
 dataset/**
+masked_dataset/**
+Masked_Dataset_Carre/**
 .pytest_cache
 tmp/**
 .vs/

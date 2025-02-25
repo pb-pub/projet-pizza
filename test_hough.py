@@ -59,9 +59,12 @@ def detect_pizza(image_path):
 def mask_pizza(image_path):
     # Read the image
     image = cv2.imread(image_path)
+    initial_shape = image.shape
+    resized = False
     
     # resize the image if it is too big
     if image.shape[0] > 600 or image.shape[1] > 600:
+        resized = True
         rapport = image.shape[0] / image.shape[1]
         image = cv2.resize(image, (600, int(600 * rapport)))
         
@@ -100,11 +103,29 @@ def mask_pizza(image_path):
         # Create a mask
         mask = np.zeros_like(image)
         cv2.circle(mask, (x, y), int(r*0.95), (255, 255, 255), -1)
+        
+        if resized:
+            # Resize the mask to its initial shape
+            mask = cv2.resize(mask, (initial_shape[1], initial_shape[0]))
+        
+        image = cv2.imread(image_path)
+        
         # Apply the mask
         masked_image = cv2.bitwise_and(image, mask)
+        
+        # crop the image around the circle by finding the first non zero pixel
+        # Find the bounding box of non-zero pixels
+        coords = cv2.findNonZero(cv2.cvtColor(masked_image, cv2.COLOR_BGR2GRAY))
+        x, y, w, h = cv2.boundingRect(coords)
+
+        # Crop the image to the bounding box
+        masked_image = masked_image[y:y+h, x:x+w]
+        
         break
         
     print(f"Circle detected in {image_path.split('\\')[-1]}")
+     
+        
     return masked_image
         
 

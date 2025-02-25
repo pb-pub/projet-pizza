@@ -11,7 +11,7 @@ H = Ihsv(:,:,1); % Teinte (Hue)
 S = Ihsv(:,:,2); % Saturation
 V = Ihsv(:,:,3); % Valeur (Brightness)
 
-% Définir les seuils pour le jaune (ajuster si besoin)
+% Définir les seuils pour le vert (ajuster si besoin)
 H_min = 0.15; % Approximativement jaune (~30° en HSV)
 H_max = 0.4; 
 S_min = 0.3;  % Pour éviter les zones blanches

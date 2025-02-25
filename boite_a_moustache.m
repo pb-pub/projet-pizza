@@ -19,8 +19,8 @@ for i = 1:num_types
     %lum_values = zeros(num_files, 1);
     
     for j = 1:num_files
-        img = imread(fullfile('dataset\', folders{i}, files(j).name));
-        [Area(j)] = caracvert(img);
+        img = imread(fullfile('Masked_dataset\', folders{i}, files(j).name));
+        [Area(j)] = caracblanc(img);
         %gray_img = rgb2gray(img);
         %lum_values(j) = area(gray_img(:));
     end

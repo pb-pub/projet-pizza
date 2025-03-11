@@ -62,7 +62,7 @@ if __name__ == "__main__":
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    k_values = [6]
+    k_values = [4,6,8,10,12]
     knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
     
     

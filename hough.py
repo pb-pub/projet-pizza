@@ -56,9 +56,11 @@ def detect_pizza(image_path):
 
 
 """Mask the detected pizza"""
-def mask_pizza(image_path):
+def mask_pizza(image_path = None, image = None):
     # Read the image
-    image = cv2.imread(image_path)
+    if image_path is not None:
+        image = cv2.imread(image_path)
+    
     initial_shape = image.shape
     resized = False
     
@@ -150,8 +152,9 @@ if __name__ == "__main__":
     
     
      # Replace with your image path
-    
     dirs = os.listdir("./dataset")
+    
+    
     print(dirs)
     for dir in dirs:
         # Create output directory for the current 'dir'

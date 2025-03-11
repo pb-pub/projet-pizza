@@ -4,6 +4,7 @@ import os
 import numpy as np
 from sklearn.model_selection import train_test_split
 import knn
+from skimage.io import imread
 
 import descripteurs_texture as dt
 import descripteur_couleur as ct
@@ -19,7 +20,7 @@ def process_features(masked_image):
     
     # color_features = color_features.flatten()
     features = np.concatenate((texture_features, color_features))
-    return color_features 
+    return features 
 
  
 
@@ -38,27 +39,30 @@ if __name__ == "__main__":
     features = []
     labels = []
     
-    for i, folder in enumerate(folders, 1):
-        folder_path = os.path.join(base_dir, folder)
-        print(f"Traitement du dossier: {folder_path}")
-        
-        files = os.listdir(folder_path)
-        print(f"Nombre d'images trouvées dans {folder}: {len(files)}")
-        
-        for file in files:
-            image_path = os.path.join(folder_path, file)
-            # masked_image = pre_process_image(image_path)
-            masked_image = cv2.imread(image_path)
-            features.append(process_features(masked_image))
-            labels.append(i + 1)
-            
     
+    for i in range(len(folders)):
+        dataset_path = os.path.join('masked', folders[i])
+        
+        files = [f for f in os.listdir(dataset_path) if f.endswith('.jpg')]
+        for file in files:
+            
+            img_path = os.path.join(dataset_path, file)
+            img = imread(img_path)
+            feat_vec = process_features(img)
+            features.append(feat_vec)
+            labels.append(i + 1)
+     
             
     X = np.array(features)
     y = np.array(labels)
+    
+    # save the features in a file 
+    np.save('features.npy', features)
+    np.save('labels.npy', labels)
+    
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    k_values = [2,4,6,8,10,12,14]
+    k_values = [6]
     knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
     
     

@@ -7,7 +7,7 @@ from skimage.io import imread
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix, accuracy_score
-
+import knn
 import cv2
 import numpy as np
 
@@ -223,20 +223,12 @@ if __name__ == '__main__':
 
     features = np.array(features)
     labels = np.array(labels)
+    # save the features in a file
+    np.save('features_flo.npy', features)
+    np.save('labels_flo.npy', labels)
+    
 
     X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+    
 
-    # Création du modèle k-NN
-    knn_model = KNeighborsClassifier(n_neighbors=6)
-    knn_model.fit(X_train, y_train)
-
-    # Prédiction sur l'ensemble de test
-    y_pred = knn_model.predict(X_test)
-
-    # Matrice de confusion et précision
-    conf_matrix = confusion_matrix(y_test, y_pred)
-    accuracy = accuracy_score(y_test, y_pred)
-
-    print('Matrice de confusion :')
-    print(conf_matrix)
-    print(f'Précision globale : {accuracy * 100:.2f}%')
+    knn.evaluate_knn(X_train, X_test, y_train, y_test, [6])

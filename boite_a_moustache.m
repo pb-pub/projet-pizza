@@ -15,12 +15,12 @@ maxs = zeros(num_types, 6);
 
 % Parcours des dossiers
 for i = 1:num_types
-    files = dir(fullfile('masked_dataset\', folders{i}, '*.jpg')); 
+    files = dir(fullfile('masked_dataset_carre\', folders{i}, '*.jpg')); 
     num_files = numel(files);
     Areas = zeros(num_files, 6);
     
     for j = 1:num_files
-        img = imread(fullfile('masked_dataset\', folders{i}, files(j).name));
+        img = imread(fullfile('masked_dataset_carre\', folders{i}, files(j).name));
         Areas(j, :) = (caraccouleur(img))';
     end
     
@@ -103,11 +103,11 @@ labels = [];
 
 % Parcours des dossiers
 for i = 1:num_types
-    files = dir(fullfile('masked_dataset\', folders{i}, '*.jpg'));
+    files = dir(fullfile('masked_dataset_carre\', folders{i}, '*.jpg'));
     num_files = numel(files);
 
     for j = 1:num_files
-        img = imread(fullfile('masked_dataset\', folders{i}, files(j).name));
+        img = imread(fullfile('masked_dataset_carre\', folders{i}, files(j).name));
         img_size = size(img,1) * size(img,2);
 
         % Extraire les caractéristiques (proportions de couleur)

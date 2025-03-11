@@ -41,7 +41,7 @@ if __name__ == "__main__":
     
     
     for i in range(len(folders)):
-        dataset_path = os.path.join('masked', folders[i])
+        dataset_path = os.path.join('masked', fkolders[i])
         
         files = [f for f in os.listdir(dataset_path) if f.endswith('.jpg')]
         for file in files:
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    k_values = [4,6,8,10,12]
+    k_values = np.arange(3, 21)
     knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
     
     

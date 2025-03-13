@@ -14,6 +14,10 @@ dist/**
 *.egg-info/*
 .vscode
 examples/**/*.jpg
+masked_dataset/**/*.jpg
+masked_dataset_carre/**/*.jpg
+masked_dataset/**/*.png
+masked_dataset_carre/**/*.png
 .python-version
 .coverage
 *coverage.xml

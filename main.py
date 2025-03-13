@@ -6,10 +6,105 @@ import matplotlib.pyplot as plt
 from skimage.io import imread
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, precision_score, recall_score, classification_report  # Ajout de f1_score, precision_score, recall_score, classification_report
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
 
 import cv2
 import numpy as np
+
+def sem_algorithm(im, k, max_iter=100):
+    """
+    Implementation of Stochastic Expectation Maximization for Gaussian Mixture Model
+
+    Args:
+        im: Input image (grayscale)
+        k: Number of clusters
+        max_iter: Maximum number of iterations
+
+    Returns:
+        label_img: Labels for each pixel
+        params: Parameters of the Gaussian distributions
+        log_likelihood: Log-likelihood evolution
+    """
+    # Initialize random generator
+    np.random.seed()
+
+    # Get image dimensions
+    dim = im.shape
+    label_img = np.zeros(dim)
+    size = dim[0] * dim[1]
+    params = np.zeros((k, 3))  # mean, variance, prior probability
+    posterior_probs = np.zeros((256, k))
+
+    # Initial random labeling
+    draw = np.random.rand(*dim)
+    initial_law = np.ones(k) / k
+    cumsum_law = np.cumsum(initial_law)
+
+    # Initialize parameters
+    for ki in range(k):
+        if ki == 0:
+            indices = draw < cumsum_law[ki]
+        else:
+            indices = (draw >= cumsum_law[ki-1]) & (draw < cumsum_law[ki])
+
+        label_img[indices] = ki
+        im_indices = im[indices]
+        params[ki, 0] = np.mean(im_indices.astype(float))  # mean
+        params[ki, 1] = np.var(im_indices.astype(float))   # variance
+        params[ki, 2] = np.sum(indices) / size             # prior
+
+    # EM iterations
+    log_likelihood = np.zeros(max_iter)
+
+    for it in range(max_iter):
+        draw = np.random.rand(*dim)
+
+        # For each gray level
+        for gray in range(256):
+            # Calculate posterior probabilities
+            for ki in range(k):
+                posterior_probs[gray, ki] = params[ki, 2] * np.exp(
+                    -(gray - params[ki, 0])**2 / (2*params[ki, 1])) / np.sqrt(2*np.pi*params[ki, 1])
+
+            # Normalize posteriors
+            p_gray = np.sum(posterior_probs[gray])
+            if p_gray > 0:
+                posterior_probs[gray] /= p_gray
+
+            # Get pixels of current gray level
+            pixel_indices = np.where(im == gray)
+            n_pixels = len(pixel_indices[0])
+
+            if n_pixels > 0:
+                # Sample new labels
+                cumsum_post = np.cumsum(posterior_probs[gray])
+                pixel_draws = draw[pixel_indices]
+
+                for ki in range(k):
+                    if ki == 0:
+                        mask = pixel_draws < cumsum_post[ki]
+                    else:
+                        mask = (pixel_draws >= cumsum_post[ki-1]) & (pixel_draws < cumsum_post[ki])
+
+                    label_img[pixel_indices[0][mask], pixel_indices[1][mask]] = ki
+
+                # Update log-likelihood
+                log_likelihood[it] += n_pixels * np.log(p_gray) if p_gray > 0 else 0
+
+        # Update parameters
+        for ki in range(k):
+            indices = label_img == ki
+            if np.any(indices):
+                params[ki, 0] = np.mean(im[indices].astype(float))
+                params[ki, 1] = np.var(im[indices].astype(float))
+                params[ki, 2] = np.sum(indices) / size
+
+    return label_img, params, log_likelihood
+
 
 def detect_white(img):
     """Détection des pixels blancs"""
@@ -223,22 +318,83 @@ for i in range(num_types):
         features.append(feat_vec)
         labels.append(i + 1)
 
+# Classification avec SVM
 features = np.array(features)
 labels = np.array(labels)
 
+# Split des données
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
 
-# Création du modèle k-NN
-knn_model = KNeighborsClassifier(n_neighbors=6)
-knn_model.fit(X_train, y_train)
+# Création du pipeline avec standardisation et SVM
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('svm', SVC(kernel='rbf', C=10, gamma='scale', random_state=42))
+])
 
-# Prédiction sur l'ensemble de test
-y_pred = knn_model.predict(X_test)
+# Entraînement du modèle
+pipeline.fit(X_train, y_train)
 
-# Matrice de confusion et précision
-conf_matrix = confusion_matrix(y_test, y_pred)
-accuracy = accuracy_score(y_test, y_pred)
+# Prédictions
+y_pred_train = pipeline.predict(X_train)
+y_pred = pipeline.predict(X_test)
 
+# Calcul des métriques
+train_accuracy = accuracy_score(y_train, y_pred_train)
+test_accuracy = accuracy_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred, average='weighted')
+
+# Affichage des résultats
+print('\nRésultats avec SVM :')
 print('Matrice de confusion :')
-print(conf_matrix)
-print(f'Précision globale : {accuracy * 100:.2f}%')
+print(confusion_matrix(y_test, y_pred))
+print(f'\nPrécision sur l\'ensemble d\'entraînement : {train_accuracy:.4f}')
+print(f'Précision sur l\'ensemble de test : {test_accuracy:.4f}')
+print(f'F1-score : {f1:.4f}')
+
+# Rapport de classification détaillé
+print('\nRapport de classification :')
+print(classification_report(y_test, y_pred, target_names=folders, zero_division=0))
+
+# Visualisation des décisions
+plt.figure(figsize=(12, 6))
+
+# Réduire la dimensionnalité pour la visualisation avec PCA
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+
+# Créer une grille pour visualiser les frontières de décision
+x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
+y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+                     np.arange(y_min, y_max, 0.02))
+
+# Ajuster un nouveau SVM sur les données réduites
+svm_2d = Pipeline([
+    ('scaler', StandardScaler()),
+    ('svm', SVC(kernel='rbf', C=10, gamma='scale', random_state=42))
+])
+svm_2d.fit(X_train_pca, y_train)
+
+# Prédire sur la grille
+Z = svm_2d.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+# Tracer les résultats
+plt.subplot(121)
+plt.contourf(xx, yy, Z, alpha=0.4)
+plt.scatter(X_train_pca[:, 0], X_train_pca[:, 1], c=y_train, alpha=0.8)
+plt.title("Données d'entraînement")
+plt.xlabel("Première composante principale")
+plt.ylabel("Deuxième composante principale")
+
+plt.subplot(122)
+plt.contourf(xx, yy, Z, alpha=0.4)
+plt.scatter(X_test_pca[:, 0], X_test_pca[:, 1], c=y_test, alpha=0.8)
+plt.title("Données de test")
+plt.xlabel("Première composante principale")
+plt.ylabel("Deuxième composante principale")
+
+plt.tight_layout()
+plt.show()

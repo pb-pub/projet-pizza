@@ -11,6 +11,7 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
+import seaborn as sns
 
 import cv2
 import numpy as np
@@ -346,7 +347,8 @@ f1 = f1_score(y_test, y_pred, average='weighted')
 # Affichage des résultats
 print('\nRésultats avec SVM :')
 print('Matrice de confusion :')
-print(confusion_matrix(y_test, y_pred))
+conf_matrix = confusion_matrix(y_test, y_pred)
+print(conf_matrix)
 print(f'\nPrécision sur l\'ensemble d\'entraînement : {train_accuracy:.4f}')
 print(f'Précision sur l\'ensemble de test : {test_accuracy:.4f}')
 print(f'F1-score : {f1:.4f}')
@@ -354,6 +356,31 @@ print(f'F1-score : {f1:.4f}')
 # Rapport de classification détaillé
 print('\nRapport de classification :')
 print(classification_report(y_test, y_pred, target_names=folders, zero_division=0))
+
+# Visualisation des matrices de confusion
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
+
+# Matrice de confusion brute
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
+            xticklabels=folders,
+            yticklabels=folders,
+            ax=ax1)
+ax1.set_title('Matrice de confusion (valeurs brutes)')
+ax1.set_xlabel('Prédiction')
+ax1.set_ylabel('Vraie classe')
+
+# Matrice de confusion normalisée
+conf_matrix_norm = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
+sns.heatmap(conf_matrix_norm, annot=True, fmt='.2f', cmap='Blues',
+            xticklabels=folders,
+            yticklabels=folders,
+            ax=ax2)
+ax2.set_title('Matrice de confusion (normalisée)')
+ax2.set_xlabel('Prédiction')
+ax2.set_ylabel('Vraie classe')
+
+plt.tight_layout()
+plt.show()
 
 # Visualisation des décisions
 plt.figure(figsize=(12, 6))

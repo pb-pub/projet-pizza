@@ -6,45 +6,47 @@ from skimage.io import imread
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.mixture import GaussianMixture
+from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
+from sklearn.decomposition import PCA
 
 def extract_color_features(img):
     # This function should be implemented to extract color features from images
     # Placeholder implementation:
     return np.mean(img, axis=(0, 1))
 
-def evaluate_model(X_train, X_test, y_train, y_test, folders, n_components=None, covariance_type='full'):
+def evaluate_model(X_train, X_test, y_train, y_test, folders, C=10, gamma='scale', kernel='rbf'):
     """
-    Evaluate a GMM model with the given data.
+    Evaluate a SVM model with the given data.
+    
+    Parameters:
+    -----------
+    X_train, X_test : array-like
+        Training and test features
+    y_train, y_test : array-like
+        Training and test labels
+    folders : list
+        List of class names
+    C, gamma, kernel : SVM parameters
+    
+    Returns:
+    --------
+    dict
+        Dictionary containing evaluation metrics
     """
-    n_classes = len(folders)
-    if n_components is None:
-        n_components = n_classes
-    
-    # Créer un GMM par classe
-    models = []
-    for i in range(n_classes):
-        class_samples = X_train[y_train == i]
-        gmm = GaussianMixture(
-            n_components=2,  # 2 composantes par classe
-            covariance_type='full',
-            max_iter=200,
-            n_init=5,
-            reg_covar=1e-3,
-            random_state=42+i
-        )
-        gmm.fit(class_samples)
-        models.append(gmm)
-    
+    # Création du pipeline avec standardisation et SVM
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('svm', SVC(kernel=kernel, C=C, gamma=gamma, random_state=42))
+    ])
+
+    # Entraînement du modèle
+    pipeline.fit(X_train, y_train)
+
     # Prédictions
-    def predict(X):
-        scores = np.array([gmm.score_samples(X) for gmm in models])
-        return np.argmax(scores, axis=0)
-    
-    y_pred_train = predict(X_train)
-    y_pred = predict(X_test)
-    
+    y_pred_train = pipeline.predict(X_train)
+    y_pred = pipeline.predict(X_test)
+
     # Calcul des métriques
     train_accuracy = accuracy_score(y_train, y_pred_train)
     test_accuracy = accuracy_score(y_test, y_pred)
@@ -52,7 +54,7 @@ def evaluate_model(X_train, X_test, y_train, y_test, folders, n_components=None,
     conf_matrix = confusion_matrix(y_test, y_pred)
     
     # Affichage des résultats
-    print('\nRésultats avec GMM :')
+    print('\nRésultats avec SVM :')
     print('Matrice de confusion :')
     print(conf_matrix)
     print(f'\nPrécision sur l\'ensemble d\'entraînement : {train_accuracy:.4f}')
@@ -61,17 +63,15 @@ def evaluate_model(X_train, X_test, y_train, y_test, folders, n_components=None,
     
     # Rapport de classification détaillé
     print('\nRapport de classification :')
-    print(classification_report(y_test, y_pred, target_names=folders, 
-                              labels=range(len(folders)), zero_division=0))
+    print(classification_report(y_test, y_pred, target_names=folders, zero_division=0))
     
     return {
-        'pipeline': models,
+        'pipeline': pipeline,
         'train_accuracy': train_accuracy, 
         'test_accuracy': test_accuracy,
         'f1_score': f1,
         'confusion_matrix': conf_matrix,
-        'y_pred': y_pred,
-        'log_likelihood': np.mean([gmm.score(X_test) for gmm in models])
+        'y_pred': y_pred
     }
 
 def visualize_confusion_matrix(conf_matrix, folders):
@@ -100,6 +100,50 @@ def visualize_confusion_matrix(conf_matrix, folders):
     plt.tight_layout()
     plt.show()
 
+def visualize_decision_boundaries(X_train, X_test, y_train, y_test):
+    """Visualize decision boundaries using PCA"""
+    plt.figure(figsize=(12, 6))
+
+    # Réduire la dimensionnalité pour la visualisation avec PCA
+    pca = PCA(n_components=2)
+    X_train_pca = pca.fit_transform(X_train)
+    X_test_pca = pca.transform(X_test)
+
+    # Créer une grille pour visualiser les frontières de décision
+    x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
+    y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+                        np.arange(y_min, y_max, 0.02))
+
+    # Ajuster un nouveau SVM sur les données réduites
+    svm_2d = Pipeline([
+        ('scaler', StandardScaler()),
+        ('svm', SVC(kernel='rbf', C=10, gamma='scale', random_state=42))
+    ])
+    svm_2d.fit(X_train_pca, y_train)
+
+    # Prédire sur la grille
+    Z = svm_2d.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # Tracer les résultats
+    plt.subplot(121)
+    plt.contourf(xx, yy, Z, alpha=0.4)
+    plt.scatter(X_train_pca[:, 0], X_train_pca[:, 1], c=y_train, alpha=0.8)
+    plt.title("Données d'entraînement")
+    plt.xlabel("Première composante principale")
+    plt.ylabel("Deuxième composante principale")
+
+    plt.subplot(122)
+    plt.contourf(xx, yy, Z, alpha=0.4)
+    plt.scatter(X_test_pca[:, 0], X_test_pca[:, 1], c=y_test, alpha=0.8)
+    plt.title("Données de test")
+    plt.xlabel("Première composante principale")
+    plt.ylabel("Deuxième composante principale")
+
+    plt.tight_layout()
+    plt.show()
+
 def load_data(PROJECT_ROOT, folders, num_types):
     """Load data from the specified folders"""
     features = []
@@ -114,14 +158,14 @@ def load_data(PROJECT_ROOT, folders, num_types):
             img = imread(img_path)
             feat_vec = extract_color_features(img)
             features.append(feat_vec)
-            labels.append(i)  # Changed from i + 1 to i
+            labels.append(i + 1)
     
     return np.array(features), np.array(labels)
 
 def main():
     # Define constants
     PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-    folders = ['pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege']
+    folders = ['calzone', 'margherita', 'marinara', 'pugliese']
     num_types = len(folders)
     
     # Load data
@@ -130,32 +174,12 @@ def main():
     # Split des données
     X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
     
-    # Evaluate model avec différents nombres de composantes par classe
-    n_components_per_class_range = range(1, 5)
-    results_list = []
+    # Evaluate model
+    results = evaluate_model(X_train, X_test, y_train, y_test, folders)
     
-    for n in n_components_per_class_range:
-        print(f"\nTest avec {n} composantes par classe:")
-        results = evaluate_model(X_train, X_test, y_train, y_test, folders, n_components=n)
-        results_list.append((n, results['test_accuracy'], results['log_likelihood']))
-    
-    # Afficher les résultats
-    plt.figure(figsize=(12, 5))
-    
-    plt.subplot(121)
-    plt.plot([r[0] for r in results_list], [r[1] for r in results_list], 'o-')
-    plt.xlabel('Nombre de composantes par classe')
-    plt.ylabel('Précision sur le test')
-    plt.title('Précision en fonction du nombre de composantes par classe')
-    
-    plt.subplot(122)
-    plt.plot([r[0] for r in results_list], [r[2] for r in results_list], 'o-')
-    plt.xlabel('Nombre de composantes par classe')
-    plt.ylabel('Log-vraisemblance')
-    plt.title('Log-vraisemblance en fonction du nombre de composantes par classe')
-    
-    plt.tight_layout()
-    plt.show()
+    # Visualize results
+    visualize_confusion_matrix(results['confusion_matrix'], folders)
+    visualize_decision_boundaries(X_train, X_test, y_train, y_test)
 
 if __name__ == "__main__":
     main()

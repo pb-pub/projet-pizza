@@ -1,4 +1,4 @@
-# projet-pizza
+# Projet-pizza
 
 ## Overview
 Ce projet implémente une chaîne de traitement et de classification d'images de pizza. L'objectif est de détecter, segmenter et extraire des caractéristiques (texture et couleur) à partir d'images de pizzas, puis de classer ces images à l'aide d'un algorithme k-NN.

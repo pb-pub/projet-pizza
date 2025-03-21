@@ -4,6 +4,7 @@ import os
 import numpy as np
 from sklearn.model_selection import train_test_split
 import knn
+import gmm
 from skimage.io import imread
 import matplotlib.pyplot as plt
 
@@ -66,20 +67,24 @@ if __name__ == "__main__":
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    k_values = np.arange(1, 26)
-    precisions, recalls, f1s = knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
+    # k_values = np.arange(1, 26)
+    # precisions, recalls, f1s = knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
     
-    #show the metrics for k on a plot
-    # print(precisions)
+    # #show the metrics for k on a plot
+    # # print(precisions)
     
-    # plt.plot(k_values, recalls, label='Rappel')
-    plt.plot(k_values, f1s, label='F1-score')
-    plt.plot(k_values, precisions, label='Précision')
-    plt.xlabel('k')
-    plt.ylabel('Score')
-    plt.title('Scores pour différentes valeurs de k (uniquement couleur et texture)')
-    plt.legend()
-    plt.show()
+    # # plt.plot(k_values, recalls, label='Rappel')
+    # plt.plot(k_values, f1s, label='F1-score')
+    # plt.plot(k_values, precisions, label='Précision')
+    # plt.xlabel('k')
+    # plt.ylabel('Score')
+    # plt.title('Scores pour différentes valeurs de k (uniquement couleur et texture)')
+    # plt.legend()
+    # plt.show()
+    
+    results = gmm.evaluate_model(X_train, X_test, y_train, y_test, folders)
+    print(results)
+    gmm.visualize_confusion_matrix(results['confusion_matrix'], folders)
     
     
     

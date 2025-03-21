@@ -75,10 +75,10 @@ def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
             
             # Affichage des métriques
             print("\nMétriques d'évaluation :")
-            print(f'Précision globale (accuracy) : {accuracy:.4f}')
-            print(f'Précision pondérée (precision) : {precision:.4f}')
-            print(f'Rappel pondéré (recall) : {recall:.4f}')
-            print(f'F1-score pondéré : {f1:.4f}')
+            print(f'Précision globale (accuracy) : {accuracy:.3f}')
+            print(f'Précision pondérée (precision) : {precision:.3f}')
+            # print(f'Rappel pondéré (recall) : {recall:.4f}')
+            print(f'F1-score pondéré : {f1:.3f}')
 
             # Rapport de classification détaillé
             print("\nRapport de classification détaillé :")

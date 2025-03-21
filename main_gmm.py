@@ -12,10 +12,36 @@ import descripteurs_texture as dt
 import descripteur_couleur as ct
 
 def pre_process_image(image_path):
+    """
+    Prétraite une image en appliquant un masque pour isoler la pizza.
+    
+    Parameters:
+    -----------
+    image_path : str
+        Chemin vers l'image à prétraiter
+    
+    Returns:
+    --------
+    array
+        Image masquée où seule la zone de pizza est visible
+    """
     masked_image = hough.mask_pizza(image_path)    
     return masked_image
 
 def process_features(masked_image):
+    """
+    Extrait et normalise les caractéristiques de texture et de couleur d'une image masquée.
+    
+    Parameters:
+    -----------
+    masked_image : array-like
+        Image masquée dont on veut extraire les caractéristiques
+    
+    Returns:
+    --------
+    array
+        Vecteur combinant les caractéristiques normalisées de texture et de couleur
+    """
     texture_features = dt.texture_features(masked_image)
     color_features = ct.extract_color_features(masked_image)
     

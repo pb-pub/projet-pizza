@@ -12,7 +12,19 @@ import cv2
 import numpy as np
 
 def detect_white(img):
-    """Détection des pixels blancs"""
+    """
+    Détecte les pixels blancs dans une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    float
+        Nombre de pixels détectés comme blancs
+    """
     # Convertir l'image en uint8 si nécessaire
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)
@@ -31,7 +43,19 @@ def detect_white(img):
     return float(np.sum(mask))
 
 def detect_red(img):
-    """Détection des pixels rouges"""
+    """
+    Détecte les pixels rouges dans une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    float
+        Nombre de pixels détectés comme rouges
+    """
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -52,7 +76,19 @@ def detect_red(img):
     return float(np.sum(mask > 0))
 
 def detect_green(img):
-    """Détection des pixels verts"""
+    """
+    Détecte les pixels verts dans une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    float
+        Nombre de pixels détectés comme verts
+    """
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -68,7 +104,19 @@ def detect_green(img):
     return float(np.sum(mask > 0))
 
 def detect_yellow(img):
-    """Détection des pixels jaunes"""
+    """
+    Détecte les pixels jaunes dans une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    float
+        Nombre de pixels détectés comme jaunes
+    """
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -84,7 +132,19 @@ def detect_yellow(img):
     return float(np.sum(mask > 0))
 
 def detect_brown(img):
-    """Détection des pixels marrons"""
+    """
+    Détecte les pixels marrons dans une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    float
+        Nombre de pixels détectés comme marrons
+    """
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -100,7 +160,19 @@ def detect_brown(img):
     return float(np.sum(mask > 0))
 
 def detect_pink(img):
-    """Détection des pixels roses"""
+    """
+    Détecte les pixels roses dans une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    float
+        Nombre de pixels détectés comme roses
+    """
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -116,7 +188,20 @@ def detect_pink(img):
     return float(np.sum(mask > 0))
 
 def extract_color_features(img):
-    """Extraction des caractéristiques de couleur d'une image"""
+    """
+    Extraction des caractéristiques de couleur d'une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    array
+        Vecteur contenant les proportions de chaque couleur
+        (blanc, rouge, vert, jaune, marron, rose)
+    """
     img_size = float(img.shape[0] * img.shape[1])
 
     return np.array([
@@ -129,6 +214,18 @@ def extract_color_features(img):
     ])
 
 def get_project_root():
+    """
+    Obtient le chemin racine du projet.
+    
+    Parameters:
+    -----------
+    None
+    
+    Returns:
+    --------
+    str
+        Chemin absolu du répertoire du projet
+    """
     # Obtient le chemin absolu du script en cours d'exécution
     script_path = os.path.abspath(sys.argv[0])
     # Obtient le répertoire contenant le script

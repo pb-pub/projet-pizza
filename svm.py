@@ -11,28 +11,42 @@ from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classifi
 from sklearn.decomposition import PCA
 
 def extract_color_features(img):
+    """
+    Extrait les caractéristiques de couleur d'une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    array
+        Vecteur de caractéristiques de couleur
+    """
     # This function should be implemented to extract color features from images
     # Placeholder implementation:
     return np.mean(img, axis=(0, 1))
 
 def evaluate_model(X_train, X_test, y_train, y_test, folders, C=10, gamma='scale', kernel='rbf'):
     """
-    Evaluate a SVM model with the given data.
+    Évalue un modèle SVM avec les données fournies.
     
     Parameters:
     -----------
     X_train, X_test : array-like
-        Training and test features
+        Caractéristiques d'entraînement et de test
     y_train, y_test : array-like
-        Training and test labels
+        Étiquettes d'entraînement et de test
     folders : list
-        List of class names
-    C, gamma, kernel : SVM parameters
+        Liste des noms de classes
+    C, gamma, kernel : paramètres SVM
+        Paramètres de configuration du modèle SVM
     
     Returns:
     --------
     dict
-        Dictionary containing evaluation metrics
+        Dictionnaire contenant les métriques d'évaluation
     """
     # Création du pipeline avec standardisation et SVM
     pipeline = Pipeline([
@@ -75,7 +89,21 @@ def evaluate_model(X_train, X_test, y_train, y_test, folders, C=10, gamma='scale
     }
 
 def visualize_confusion_matrix(conf_matrix, folders):
-    """Visualize confusion matrix"""
+    """
+    Visualise la matrice de confusion.
+    
+    Parameters:
+    -----------
+    conf_matrix : array-like
+        Matrice de confusion à visualiser
+    folders : list
+        Liste des noms de classes
+    
+    Returns:
+    --------
+    None
+        Affiche les graphiques de la matrice de confusion
+    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
 
     # Matrice de confusion brute
@@ -101,7 +129,21 @@ def visualize_confusion_matrix(conf_matrix, folders):
     plt.show()
 
 def visualize_decision_boundaries(X_train, X_test, y_train, y_test):
-    """Visualize decision boundaries using PCA"""
+    """
+    Visualise les frontières de décision à l'aide de PCA.
+    
+    Parameters:
+    -----------
+    X_train, X_test : array-like
+        Caractéristiques d'entraînement et de test
+    y_train, y_test : array-like
+        Étiquettes d'entraînement et de test
+    
+    Returns:
+    --------
+    None
+        Affiche les graphiques des frontières de décision
+    """
     plt.figure(figsize=(12, 6))
 
     # Réduire la dimensionnalité pour la visualisation avec PCA
@@ -145,7 +187,23 @@ def visualize_decision_boundaries(X_train, X_test, y_train, y_test):
     plt.show()
 
 def load_data(PROJECT_ROOT, folders, num_types):
-    """Load data from the specified folders"""
+    """
+    Charge les données depuis les dossiers spécifiés.
+    
+    Parameters:
+    -----------
+    PROJECT_ROOT : str
+        Chemin racine du projet
+    folders : list
+        Liste des dossiers contenant les images
+    num_types : int
+        Nombre de types de pizzas
+    
+    Returns:
+    --------
+    tuple
+        Tuple contenant les caractéristiques et les étiquettes (features, labels)
+    """
     features = []
     labels = []
 
@@ -163,6 +221,21 @@ def load_data(PROJECT_ROOT, folders, num_types):
     return np.array(features), np.array(labels)
 
 def main():
+    """
+    Fonction principale qui exécute le pipeline complet:
+    - Chargement des données
+    - Division en ensembles d'entraînement et de test
+    - Évaluation du modèle SVM
+    - Visualisation des résultats
+    
+    Parameters:
+    -----------
+    None
+    
+    Returns:
+    --------
+    None
+    """
     # Define constants
     PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
     folders = ['calzone', 'margherita', 'marinara', 'pugliese']

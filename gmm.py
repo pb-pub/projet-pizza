@@ -10,13 +10,44 @@ from sklearn.mixture import GaussianMixture
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
 
 def extract_color_features(img):
+    """
+    Extrait les caractéristiques de couleur d'une image.
+    
+    Parameters:
+    -----------
+    img : array-like
+        Image d'entrée
+    
+    Returns:
+    --------
+    array
+        Vecteur de caractéristiques de couleur (moyenne des canaux)
+    """
     # This function should be implemented to extract color features from images
     # Placeholder implementation:
     return np.mean(img, axis=(0, 1))
 
 def evaluate_model(X_train, X_test, y_train, y_test, folders, n_components=None, covariance_type='full'):
     """
-    Evaluate a GMM model with the given data.
+    Évalue un modèle GMM avec les données fournies.
+    
+    Parameters:
+    -----------
+    X_train, X_test : array-like
+        Caractéristiques d'entraînement et de test
+    y_train, y_test : array-like
+        Étiquettes d'entraînement et de test
+    folders : list
+        Liste des noms de classes
+    n_components : int, optional
+        Nombre de composantes gaussiennes par classe
+    covariance_type : str, default='full'
+        Type de matrice de covariance pour les GMMs
+    
+    Returns:
+    --------
+    dict
+        Dictionnaire contenant les métriques d'évaluation
     """
     n_classes = len(folders)
     if n_components is None:
@@ -75,7 +106,21 @@ def evaluate_model(X_train, X_test, y_train, y_test, folders, n_components=None,
     }
 
 def visualize_confusion_matrix(conf_matrix, folders):
-    """Visualize confusion matrix"""
+    """
+    Visualise la matrice de confusion.
+    
+    Parameters:
+    -----------
+    conf_matrix : array-like
+        Matrice de confusion à visualiser
+    folders : list
+        Liste des noms de classes
+    
+    Returns:
+    --------
+    None
+        Affiche les graphiques de la matrice de confusion
+    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
 
     # Matrice de confusion brute
@@ -101,7 +146,23 @@ def visualize_confusion_matrix(conf_matrix, folders):
     plt.show()
 
 def load_data(PROJECT_ROOT, folders, num_types):
-    """Load data from the specified folders"""
+    """
+    Charge les données depuis les dossiers spécifiés.
+    
+    Parameters:
+    -----------
+    PROJECT_ROOT : str
+        Chemin racine du projet
+    folders : list
+        Liste des dossiers contenant les images
+    num_types : int
+        Nombre de types de pizzas
+    
+    Returns:
+    --------
+    tuple
+        Tuple contenant les caractéristiques et les étiquettes (features, labels)
+    """
     features = []
     labels = []
 
@@ -119,6 +180,21 @@ def load_data(PROJECT_ROOT, folders, num_types):
     return np.array(features), np.array(labels)
 
 def main():
+    """
+    Fonction principale qui exécute le pipeline complet:
+    - Chargement des données
+    - Division en ensembles d'entraînement et de test
+    - Évaluation du modèle GMM avec différentes configurations
+    - Visualisation des résultats
+    
+    Parameters:
+    -----------
+    None
+    
+    Returns:
+    --------
+    None
+    """
     # Define constants
     PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
     folders = ['pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege']

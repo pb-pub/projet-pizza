@@ -3,6 +3,19 @@ import numpy as np
 import os
 
 def detect_pizza(image_path):
+    """
+    Détecte la pizza dans une image en utilisant la transformation de Hough pour les cercles.
+    
+    Parameters:
+    -----------
+    image_path : str
+        Chemin vers l'image à analyser
+    
+    Returns:
+    --------
+    array
+        Image avec le cercle de la pizza détecté
+    """
     # Read the image
     image = cv2.imread(image_path)
     
@@ -56,6 +69,21 @@ def detect_pizza(image_path):
 
 """Mask the detected pizza"""
 def mask_pizza(image_path = None, image = None):
+    """
+    Applique un masque sur l'image pour isoler la zone de la pizza.
+    
+    Parameters:
+    -----------
+    image_path : str, optional
+        Chemin vers l'image à masquer
+    image : array-like, optional
+        Image déjà chargée à masquer
+    
+    Returns:
+    --------
+    array
+        Image masquée où seule la zone de pizza est visible
+    """
     # Read the image
     if image_path is not None:
         image = cv2.imread(image_path)
@@ -129,7 +157,19 @@ def mask_pizza(image_path = None, image = None):
         
 
 def save_masked_image(image):
-    """mask and image and save it to 'masked/pizza_type/pizza_name.jpg' directory"""
+    """
+    Masque une image et la sauvegarde dans le répertoire approprié.
+    
+    Parameters:
+    -----------
+    image : str
+        Chemin vers l'image à masquer et sauvegarder
+    
+    Returns:
+    --------
+    None
+        L'image masquée est sauvegardée dans le dossier 'masked'
+    """
     image = mask_pizza(image)
     # print(f"masked/{image_path.split('/')[2]}")
     cv2.imwrite(f"masked/{image_path.split('/')[2]}", image)

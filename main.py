@@ -12,10 +12,36 @@ import descripteurs_texture as dt
 import descripteur_couleur as ct
 
 def pre_process_image(image_path):
+    """
+    Prétraite une image en appliquant un masque pour isoler la pizza.
+    
+    Parameters:
+    -----------
+    image_path : str
+        Chemin vers l'image à prétraiter
+    
+    Returns:
+    --------
+    array
+        Image masquée où seule la zone de pizza est visible
+    """
     masked_image = hough.mask_pizza(image_path)    
     return masked_image
 
 def process_features(masked_image):
+    """
+    Extrait les caractéristiques de texture et de couleur d'une image masquée.
+    
+    Parameters:
+    -----------
+    masked_image : array-like
+        Image masquée dont on veut extraire les caractéristiques
+    
+    Returns:
+    --------
+    array
+        Vecteur combinant les caractéristiques de texture et de couleur
+    """
     features = []
     texture_features = dt.texture_features(masked_image)
     color_features = ct.extract_color_features(masked_image)
@@ -24,6 +50,26 @@ def process_features(masked_image):
     return features 
 
 def kfold_evaluation_knn(X, y, k_values, n_splits=5):
+    """
+    Évalue le modèle k-NN en utilisant la validation croisée k-fold.
+    
+    Parameters:
+    -----------
+    X : array-like
+        Ensemble des caractéristiques
+    y : array-like
+        Ensemble des étiquettes
+    k_values : array-like
+        Valeurs de k à évaluer pour k-NN
+    n_splits : int, default=5
+        Nombre de plis pour la validation croisée
+    
+    Returns:
+    --------
+    tuple
+        Contient les moyennes et écarts-types de précision, rappel et F1-score
+        (avg_precisions, avg_recalls, avg_f1s, std_precisions, std_recalls, std_f1s)
+    """
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
     
     fold_precisions = []

@@ -9,7 +9,28 @@ import matplotlib.pyplot as plt
 sys.stdout.reconfigure(encoding='utf-8')
 
 def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
-    """Évalue le modèle k-NN pour différentes valeurs de k."""
+    """
+    Évalue le modèle k-NN pour différentes valeurs de k.
+    
+    Parameters:
+    -----------
+    X_train : array-like
+        Caractéristiques d'entraînement
+    X_test : array-like
+        Caractéristiques de test
+    y_train : array-like
+        Étiquettes d'entraînement
+    y_test : array-like
+        Étiquettes de test
+    k_values : array-like
+        Valeurs de k à évaluer pour l'algorithme k-NN
+    
+    Returns:
+    --------
+    tuple
+        Contient les valeurs de précision, rappel et F1-score pour chaque k
+        (precisions, recalls, f1s)
+    """
     
     precisions = np.array([])
     recalls = np.array([])

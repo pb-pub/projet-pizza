@@ -10,6 +10,12 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
     """Évalue le modèle k-NN pour différentes valeurs de k."""
+    
+    precisions = np.array([])
+    recalls = np.array([])
+    f1s = np.array([])
+    
+    
     for k in k_values:
         knn_model = KNeighborsClassifier(n_neighbors=k)
         knn_model.fit(X_train, y_train)
@@ -18,12 +24,21 @@ def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
         conf_matrix = confusion_matrix(y_test, y_pred)
         accuracy = accuracy_score(y_test, y_pred)
 
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='weighted')
+        recall = recall_score(y_test, y_pred, average='weighted')
+        f1 = f1_score(y_test, y_pred, average='weighted')
+
+        precisions = np.append(precisions, accuracy )
+        recalls = np.append(recalls, recall)
+        f1s = np.append(f1s, f1)
+
         print(f'k : {k}')
         print('Matrice de confusion :')
         print(conf_matrix)
         print(f'Précision globale : {accuracy * 100:.2f}%\n')
         
-        if k == 15:
+        if k == 17:
             folders = ['pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege']
             
             # affichage de la matrice de confusion avec sns
@@ -41,7 +56,7 @@ def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
 
             # Matrice de confusion normalisée
             conf_matrix_norm = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
-            sns.heatmap(conf_matrix_norm, annot=True, fmt='.2f', cmap='Blues',
+            sns.heatmap(conf_matrix_norm, annot=True, fmt='.2f', cmap='Reds',
                         xticklabels=folders,
                         yticklabels=folders,
                         ax=ax2)
@@ -57,10 +72,6 @@ def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
             
             
             # Calcul des métriques
-            conf_matrix = confusion_matrix(y_test, y_pred)
-            precision = precision_score(y_test, y_pred, average='weighted')
-            recall = recall_score(y_test, y_pred, average='weighted')
-            f1 = f1_score(y_test, y_pred, average='weighted')
             
             # Affichage des métriques
             print("\nMétriques d'évaluation :")
@@ -72,7 +83,10 @@ def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
             # Rapport de classification détaillé
             print("\nRapport de classification détaillé :")
             print(classification_report(y_test, y_pred, target_names=folders, zero_division=0))
-
+            
+            
+    # print(precisions,recalls,f1s)
+    return precisions, recalls, f1s
 
 
 

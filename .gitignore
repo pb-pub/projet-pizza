@@ -20,3 +20,7 @@ examples/**/*.jpg
 .coverage
 *coverage.xml
 .ruff_cache
+masked_dataset/**/*.jpg
+masked_dataset/**/*.png
+masked_dataset_carre/**/*.jpg
+masked_dataset_carre/**/*.png

@@ -38,7 +38,7 @@ def evaluate_knn(X_train, X_test, y_train, y_test, k_values):
         print(conf_matrix)
         print(f'Précision globale : {accuracy * 100:.2f}%\n')
         
-        if k == 17:
+        if k == 100:
             folders = ['pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege']
             
             # affichage de la matrice de confusion avec sns

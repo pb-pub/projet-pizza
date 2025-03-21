@@ -51,7 +51,6 @@ def detect_pizza(image_path):
         cv2.circle(output, (x, y), r, (0, 255, 0), 4)
         break
         
-    print(f"Circle detected in {image_path.split('\\')[-1]}")
     return output
 
 
@@ -124,8 +123,6 @@ def mask_pizza(image_path = None, image = None):
         masked_image = masked_image[y:y+h, x:x+w]
         
         break
-        
-    print(f"Circle detected in {image_path.split('\\')[-1]}")
      
         
     return masked_image

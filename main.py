@@ -24,7 +24,7 @@ def process_features(masked_image):
     features = np.concatenate((texture_features, color_features))
     return features 
 
- 
+
 
 if __name__ == "__main__":
     # Load images
@@ -34,9 +34,18 @@ if __name__ == "__main__":
     # image = pre_process_image("dataset/pizzamargherita/m15.jpg")
     # features = process_features(image)
     # print(features)
+
+    choice = 1
+    if choice == 1:
+        print("KNN")
+    elif choice == 2:
+        print("GMM")
+    else:
+        print("Invalid choice")
+        exit()
     
     folders = ['pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege']
-    base_dir = "masked" #using this because the pre-processed images are in the masked folder
+    base_dir = "masked_dataset_carre" #using this because the pre-processed images are in the masked folder
     # base_dir = "dataset" # uncomment this if you want to use the original images
     
     features = []
@@ -44,7 +53,7 @@ if __name__ == "__main__":
     
     
     for i in range(len(folders)):
-        dataset_path = os.path.join('masked', folders[i])
+        dataset_path = os.path.join(base_dir, folders[i])
         
         files = [f for f in os.listdir(dataset_path) if f.endswith('.jpg')]
         for file in files:
@@ -67,26 +76,23 @@ if __name__ == "__main__":
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # k_values = np.arange(1, 26)
-    # precisions, recalls, f1s = knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
-    
-    # #show the metrics for k on a plot
-    # # print(precisions)
-    
-    # # plt.plot(k_values, recalls, label='Rappel')
-    # plt.plot(k_values, f1s, label='F1-score')
-    # plt.plot(k_values, precisions, label='Précision')
-    # plt.xlabel('k')
-    # plt.ylabel('Score')
-    # plt.title('Scores pour différentes valeurs de k (uniquement couleur et texture)')
-    # plt.legend()
-    # plt.show()
-    
-    results = gmm.evaluate_model(X_train, X_test, y_train, y_test, folders)
-    print(results)
-    gmm.visualize_confusion_matrix(results['confusion_matrix'], folders)
-    
-    
-    
-    
-    
+    if choice == 1:
+        k_values = np.arange(1, 26)
+        precisions, recalls, f1s = knn.evaluate_knn(X_train, X_test, y_train, y_test, k_values)
+        
+        #show the metrics for k on a plot
+        # print(precisions)
+        
+        # plt.plot(k_values, recalls, label='Rappel')
+        plt.plot(k_values, f1s, label='F1-score')
+        plt.plot(k_values, precisions, label='Précision')
+        plt.xlabel('k')
+        plt.ylabel('Score')
+        plt.title('Scores pour différentes valeurs de k (uniquement couleur et texture)')
+        plt.legend()
+        plt.show()
+
+    elif choice == 2:
+        results = gmm.evaluate_model(X_train, X_test, y_train, y_test, folders)
+        print(results)
+        gmm.visualize_confusion_matrix(results['confusion_matrix'], folders)

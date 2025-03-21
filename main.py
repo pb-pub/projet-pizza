@@ -55,7 +55,7 @@ if __name__ == "__main__":
     if choice == 1:
         print("KNN")
     elif choice == 2:
-        print("GMM")
+        print("SVM")
     else:
         print("Invalid choice")
         exit()

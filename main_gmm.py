@@ -38,14 +38,7 @@ if __name__ == "__main__":
     # features = process_features(image)
     # print(features)
 
-    choice = 2
-    if choice == 1:
-        print("KNN")
-    elif choice == 2:
-        print("GMM")
-    else:
-        print("Invalid choice")
-        exit()
+    print("GMM")
     
     folders = ['pizzafromag', 'pizzahawai', 'pizzamargherita', 'pizzapepperoni', 'pizzareine', 'pizzavege']
     base_dir = "masked_dataset_carre" #using this because the pre-processed images are in the masked folder
